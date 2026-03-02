@@ -1,0 +1,136 @@
+Animal.h
+
+#ifndef ACTIVIDAD1_ANIMAL_H
+#define ACTIVIDAD1_ANIMAL_H
+#include <iostream>
+using namespace std;
+
+class Animal{
+protected:
+    string nombre;
+public:
+    Animal(string nombre);
+    virtual ~Animal();
+    virtual void mostrarAnimal() = 0;
+};
+
+
+#endif //ACTIVIDAD1_ANIMAL_H
+
+Animal.cpp
+
+#include "Animal.h"
+
+Animal::Animal(string nombre){
+    this->nombre = nombre;
+}
+Animal::~Animal()
+{
+    // cout << "Se ha destruido un animal\n";
+}
+
+void Animal::mostrarAnimal()
+{
+    cout << "Animal nombre: " << nombre << endl;
+}
+
+Mamifero.h
+
+#ifndef ACTIVIDAD1_MAMIFERO_H
+#define ACTIVIDAD1_MAMIFERO_H
+#include "Animal.h"
+
+class Mamifero : public Animal
+{
+protected:
+    string alimentacion;
+public:
+    Mamifero(string alimentacion, string nombre);
+    virtual ~Mamifero();
+    void mostrarAnimal()override;
+
+
+};
+
+
+#endif //ACTIVIDAD1_MAMIFERO_H
+
+Mamifero.cpp
+
+#include "Mamifero.h"
+
+Mamifero::Mamifero(string nombre, string alimentacion) : Animal(nombre)
+{
+    this->alimentacion = alimentacion;
+}
+Mamifero::~Mamifero()
+{
+    // cout << "Mamifero Destrucido" << endl;
+}
+void Mamifero::mostrarAnimal(){
+    Animal::mostrarAnimal();
+    cout << "Mamifero alimentacion: " << alimentacion << endl;
+}
+
+Perro.h
+
+#ifndef ACTIVIDAD1_PERRO_H
+#define ACTIVIDAD1_PERRO_H
+#include <string>
+
+#include "Mamifero.h"
+
+
+class Perro : public Mamifero {
+private:
+    string tam;
+public:
+    Perro(string nombre, string alimentacion, string tam);
+    virtual ~Perro();
+    void mostrarAnimal()override;
+};
+
+
+#endif //ACTIVIDAD1_PERRO_H
+
+Perro.cpp
+
+#include "Perro.h"
+
+Perro::Perro(string nombre, string alimentacion, string tam) : Mamifero(nombre, alimentacion)
+{
+    this->tam = tam;
+}
+
+Perro::~Perro()
+{
+    // cout << "Perro destruido\n";
+}
+
+void Perro::mostrarAnimal()
+{
+    Mamifero::mostrarAnimal();
+    cout << "Perro Tamano: " << tam << endl;
+}
+
+Main.cpp
+
+#include "Animal.h"
+#include "Mamifero.h"
+#include "Perro.h"
+using namespace std;
+
+int main() {
+
+    Perro perro("Nala", "Omnivoro", "Pequeno");
+
+    Animal* a1 = &perro;
+
+    Mamifero* m1 = &perro;
+
+    a1->mostrarAnimal();
+    cout << "===================\n";
+    m1->mostrarAnimal();
+
+    return 0;
+}
