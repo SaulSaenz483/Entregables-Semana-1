@@ -1,3 +1,9 @@
+*Justifique en el archivo MD qué tipo de relación existe entre las clases y por qué el upcast es seguro.
+Existe una relación de herencia, donde Mamifero es una especialización de Animal. 
+Esto significa que un mamífero es un animal, ya que comparte sus características básicas y además puede agregar otras propias.
+El upcast es seguro porque un objeto Mamifero también es un Animal, entonces puede tratarse como tal sin problema. 
+No se pierde información, simplemente se está viendo el objeto desde una forma más general.
+
 Animal.h
 
 #ifndef ACTIVIDAD1_ANIMAL_H
