@@ -1,0 +1,194 @@
+Breve párrafo en MD explicando la solución.
+En esta solución se evitó la dependencia circular declarando la existencia de la otra clase en los archivos .h 
+(por ejemplo, class Libro; en Autor.h y class Autor; en Libro.h) en lugar de incluir directamente el otro header.
+Las inclusiones completas se hicieron únicamente en los .cpp, donde sí se necesita la definición completa para usar 
+los métodos. Así, Autor puede tener una lista de Libro* y Libro un Autor* sin que los headers se incluyan entre sí. 
+De esta manera se mantiene la relación mutua y el código compila correctamente.
+
+Autor.h
+
+#ifndef ACTIVIDAD_3_AUTOR_H
+#define ACTIVIDAD_3_AUTOR_H
+class Libro;
+using namespace std;
+#include <string>
+
+#include <string>
+
+class Libro;
+
+class Autor {
+private:
+    string nombre;
+
+    Libro** libros;
+    int cantidad;
+    int capacidad;
+
+    void aumentarCapacidad();
+
+public:
+    Autor(const string& nombre);
+    ~Autor();
+
+    string getNombre() const;
+
+    void agregarLibro(Libro* libro);
+    int getCantidadLibros() const;
+    Libro* getLibro(int i) const;
+};
+
+
+#endif //ACTIVIDAD_3_AUTOR_H
+
+Autor.cpp
+#include "Autor.h"
+#include "Libro.h"  // aquí sí se incluye (ya no hay dependencia circular en .h)
+
+Autor::Autor(const string& nombre){
+    this -> nombre = nombre;
+    libros = nullptr;
+    cantidad = 0;
+    capacidad = 0;
+}
+
+Autor::~Autor() {
+    delete[] libros;
+}
+
+std::string Autor::getNombre() const {
+    return nombre;
+}
+
+void Autor::aumentarCapacidad() {
+    int nuevaCap = (capacidad == 0) ? 2 : capacidad * 2;
+
+    Libro** nuevoArreglo = new Libro*[nuevaCap];
+    for (int i = 0; i < nuevaCap; i++) nuevoArreglo[i] = nullptr;
+
+    for (int i = 0; i < cantidad; i++) {
+        nuevoArreglo[i] = libros[i];
+    }
+
+    delete[] libros;
+    libros = nuevoArreglo;
+    capacidad = nuevaCap;
+}
+
+void Autor::agregarLibro(Libro* libro) {
+    if (libro == nullptr) return;
+
+    for (int i = 0; i < cantidad; i++) {
+        if (libros[i] == libro) return;
+    }
+
+    if (cantidad >= capacidad) {
+        aumentarCapacidad();
+    }
+
+    libros[cantidad++] = libro;
+}
+
+int Autor::getCantidadLibros() const {
+    return cantidad;
+}
+
+Libro* Autor::getLibro(int i) const {
+    if (i < 0 || i >= cantidad) return nullptr;
+    return libros[i];
+}
+
+Libro.h
+
+#ifndef ACTIVIDAD_3_LIBRO_H
+#define ACTIVIDAD_3_LIBRO_H
+#include <string>
+using namespace std;
+class Autor;
+
+class Libro {
+private:
+    std::string titulo;
+    Autor* autor;
+
+public:
+    Libro(const string& titulo, Autor* autor);
+    ~Libro();
+
+    std::string getTitulo() const;
+    Autor* getAutor() const;
+
+    void setAutor(Autor* autor);
+};
+
+
+#endif //ACTIVIDAD_3_LIBRO_H
+
+Libro.cpp
+
+#include "Libro.h"
+#include "Autor.h"
+
+Libro::Libro(const string& titulo, Autor* autor) {
+    this -> titulo = titulo;
+    setAutor(autor);
+    autor = nullptr;
+}
+
+Libro::~Libro() {
+}
+
+std::string Libro::getTitulo() const {
+    return titulo;
+}
+
+Autor* Libro::getAutor() const {
+    return autor;
+}
+
+void Libro::setAutor(Autor* nuevoAutor) {
+    autor = nuevoAutor;
+
+    if (autor != nullptr) {
+        autor->agregarLibro(this);
+    }
+}
+
+Main.cpp
+
+#include <iostream>
+#include "Autor.h"
+#include "Libro.h"
+
+int main() {
+
+    Autor* autor = new Autor("Hermann Hesse");
+
+    Libro* libro1 = new Libro("Siddhartha", autor);
+    Libro* libro2 = new Libro("El Lobo Estepario", autor);
+    Libro* libro3 = new Libro("Demian", autor);
+
+
+    cout << "Autor: " << autor->getNombre() << endl;
+    cout << "Libros escritos:\n";
+
+    for (int i = 0; i < autor->getCantidadLibros(); i++) {
+        Libro* l = autor->getLibro(i);
+        if (l != nullptr) {
+            cout << "- " << l->getTitulo() << endl;
+        }
+    }
+
+    cout << "\nAutor del libro '"
+              << libro1->getTitulo()
+              << "': "
+              << libro1->getAutor()->getNombre()
+              << endl;
+
+    delete libro1;
+    delete libro2;
+    delete libro3;
+    delete autor;
+
+    return 0;
+}
